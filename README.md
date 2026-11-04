@@ -11,7 +11,7 @@ Aplicación para organizar las quedadas de quince amigos en Murcia y Orihuela.
 ## Qué hace
 
 - Calendario mensual, semanal y lista, con propuestas, confirmaciones y cancelaciones.
-- Doble clic o doble toque en un día: abre su plan, permite elegir si hay varios o inicia uno nuevo si está vacío. Intro ofrece la misma acción con teclado. El + pequeño de cada casilla crea directamente un plan con esa fecha.
+- Doble clic o doble toque en un día: abre su plan, permite elegir si hay varios o inicia uno nuevo si está vacío. Intro ofrece la misma acción con teclado. El + pequeño aparece solo después de pulsar su día y crea directamente un plan con esa fecha.
 - Categorías, fecha, hora peninsular, ubicación y Maps, presupuesto y notas.
 - Respuestas individuales, comentarios y disponibilidad de cada persona.
 - Histórico automático y álbumes; fotos JPG/PNG/WebP optimizadas antes de subir, máximo 5 MB almacenados y retirada de fotos propias.
