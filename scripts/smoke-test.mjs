@@ -1,0 +1,48 @@
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {readFile,mkdir,writeFile,rm} from 'node:fs/promises';
+import {pathToFileURL} from 'node:url';
+const require=createRequire(import.meta.url);
+const wr=createRequire(require.resolve('wrangler/package.json'));
+const {Miniflare}=wr('miniflare');
+const {build}=wr('esbuild');
+await mkdir('.sites-runtime',{recursive:true});
+const out='.sites-runtime/smoke-routes.mjs';
+await build({stdin:{contents:"export * as discover from './app/api/discover/route.ts';export * as data from './app/api/data/route.ts';export * as photo from './app/api/photos/route.ts';export * as image from './app/api/photos/[id]/route.ts';",resolveDir:process.cwd()},bundle:true,platform:'node',format:'esm',outfile:out,plugins:[{name:'test-bindings',setup(b){b.onResolve({filter:/^cloudflare:workers$/},()=>({path:'env',namespace:'test'}));b.onLoad({filter:/.*/,namespace:'test'},()=>({contents:'export const env=globalThis.__cbTestEnv',loader:'js'}))}}]});
+const mf=new Miniflare({modules:true,script:'export default {fetch(){return new Response("ok")}}',compatibilityDate:'2026-05-15',d1Databases:['DB'],r2Buckets:['BUCKET']});
+try{
+const DB=await mf.getD1Database('DB');const BUCKET=await mf.getR2Bucket('BUCKET');
+const sql=await readFile('drizzle/0000_elite_ink.sql','utf8');for(const s of sql.split('--> statement-breakpoint'))if(s.trim())await DB.prepare(s.trim()).run();
+globalThis.__cbTestEnv={DB,BUCKET};const routes=await import(pathToFileURL(process.cwd()+'/'+out));
+const origin='https://test.cb.local';const device='01234567-0123-4567-8901-234567890123';const other='11111111-0123-4567-8901-234567890123';
+const post=(body,dev=device)=>routes.data.POST(new Request(origin+'/api/data',{method:'POST',headers:{origin,'content-type':'application/json','x-device':dev},body:JSON.stringify({member:'Ángel',...body})}));
+const plan={title:'Prueba de integración',date:'2026-11-07',time:'20:30',category:'Comer & beber',location:'Murcia centro',city:'Murcia',budget:20,description:'Reserva por confirmar',status:'Propuesto'};
+let r=await post({action:'plan',plan});assert.equal(r.status,200);const {id}=await r.json();assert.ok(id);
+r=await post({action:'plan',plan:{...plan,id,title:'Otro'}} ,other);assert.equal(r.status,403,'only creator device can edit');
+r=await post({action:'plan',plan:{...plan,id,title:'Plan afinado'}});assert.equal(r.status,200);
+r=await post({action:'plan',plan:{...plan,date:'2026-02-31'}});assert.equal(r.status,400,'invalid calendar dates rejected');
+for(const answer of ['yes','maybe'])assert.equal((await post({action:'rsvp',plan:id,answer})).status,200);
+assert.equal((await post({action:'rsvp',plan:'missing',answer:'yes'})).status,404);
+for(const answer of ['yes','no'])assert.equal((await post({action:'availability',date:plan.date,answer})).status,200);
+assert.equal((await post({action:'comment',plan:id,text:'¿Quién lleva coche?'})).status,200);
+assert.equal((await post({action:'comment',plan:id,text:' '})).status,400);
+let d=await (await routes.data.GET(new Request(origin+'/api/data',{headers:{'x-device':device}}))).json();assert.equal(d.plans.length,1);assert.equal(d.plans[0].title,'Plan afinado');assert.equal(d.plans[0].mine,true);assert.ok(!('owner' in d.plans[0]));assert.equal(d.rsvps.length,1);assert.equal(d.rsvps[0].answer,'maybe');assert.equal(d.availability[0].answer,'no');assert.equal(d.comments.length,1);
+const fd=new FormData();fd.set('member','Ángel');fd.set('plan',id);fd.set('file',new File([Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aL1sAAAAASUVORK5CYII=','base64')],'test.png',{type:'image/png'}));
+r=await routes.photo.POST(new Request(origin+'/api/photos',{method:'POST',headers:{origin,'x-device':device},body:fd}));assert.equal(r.status,200,await r.text());
+d=await (await routes.data.GET(new Request(origin+'/api/data',{headers:{'x-device':device}}))).json();assert.equal(d.photos.length,1);assert.equal(d.photos[0].mine,true);assert.ok(!('owner' in d.photos[0]));const photo=d.photos[0].id;const ctx={params:Promise.resolve({id:photo})};
+r=await routes.image.GET(new Request(origin+'/api/photos/'+photo),ctx);assert.equal(r.status,200);assert.equal(r.headers.get('content-type'),'image/png');
+r=await routes.image.DELETE(new Request(origin+'/api/photos/'+photo,{method:'DELETE',headers:{origin,'x-device':other}}),ctx);assert.equal(r.status,403);
+r=await routes.image.DELETE(new Request(origin+'/api/photos/'+photo,{method:'DELETE',headers:{origin,'x-device':device}}),ctx);assert.equal(r.status,200);
+r=await routes.image.GET(new Request(origin+'/api/photos/'+photo),ctx);assert.equal(r.status,404);
+const originalFetch=globalThis.fetch;
+try{globalThis.fetch=async url=>{const s=String(url);if(s.includes('wp-json'))return Response.json({events:[{title:'Evento de prueba Orihuela',url:'https://www.orihuela.es/evento/prueba/',start_date:'2026-11-07 10:00:00',description:'Texto',venue:{venue:'La Lonja'}}]});if(s.endsWith('.rss'))return new Response('<rss><channel><item><link>https://eventos.murcia.es/prueba.html</link></item></channel></rss>');return new Response('<script type="application/ld+json">'+JSON.stringify({'@type':'Event',name:'Evento de prueba Murcia',startDate:'2026-11-08T12:00:00+01:00',location:{name:'Centro'}})+'</script>');};
+r=await routes.discover.GET(new Request(origin+'/api/discover?date=2026-11-06'));const discovered=await r.json();assert.equal(discovered.events.length,2);assert.equal(discovered.providers.Murcia,true);assert.equal(discovered.events[1].city,'Murcia');
+}finally{globalThis.fetch=originalFetch}
+const originalGatewayFetch=globalThis.fetch;
+try{let imported=null;globalThis.__cbTestEnv.CB_SUPABASE_URL='https://backend.invalid/cb-api';globalThis.__cbTestEnv.CB_GATEWAY_KEY='test-only-key';
+globalThis.fetch=async(url,init)=>{const path=new URL(String(url)).pathname;if(path.endsWith('/migration'))return Response.json({complete:false});if(path.endsWith('/import')){imported=JSON.parse(init.body);return Response.json({ok:true})}if(path.endsWith('/data'))return Response.json({plans:[],rsvps:[],comments:[],availability:[],photos:[]});throw Error('unexpected request')};
+r=await routes.data.GET(new Request(origin+'/api/data',{headers:{'x-device':device}}));assert.equal(r.status,200);assert.equal(imported.plans.length,1);assert.equal(imported.plans[0].title,'Plan afinado');assert.ok(imported.plans[0].owner,'legacy editing ownership preserved');assert.equal(imported.comments.length,1);assert.equal((await DB.prepare('SELECT count(*) as n FROM plans').first()).n,1,'legacy data remains intact');
+globalThis.fetch=async()=>{throw Error('offline')};r=await routes.data.GET(new Request(origin+'/api/data'));assert.equal(r.status,503,'never silently fall back to a different database');
+}finally{globalThis.fetch=originalGatewayFetch;delete globalThis.__cbTestEnv.CB_SUPABASE_URL;delete globalThis.__cbTestEnv.CB_GATEWAY_KEY}
+console.log('PASS: plans, creator permissions, validation, RSVP upsert, availability, comments, shared reads, photo upload/read/delete.');
+}finally{await mf.dispose();delete globalThis.__cbTestEnv;await rm(out,{force:true})}

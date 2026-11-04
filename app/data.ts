@@ -1,0 +1,6 @@
+export const members=['Ángel','Cristina','El Chino','Paloma','El Pezo','Puchaina','Davo','Isa','Pablo','Claudia','Mikete','Gabo','Nerea','Jokinito','África'];
+export const couples=[['El Chino','Paloma'],['El Pezo','Puchaina'],['Davo','Isa'],['Pablo','Claudia'],['Mikete'],['Gabo','Nerea'],['Jokinito','África'],['Ángel','Cristina']];
+export const categories=['Comer & beber','Naturaleza','Música','Cultura','Deporte','Escapada','En casa','Lo que surja'];
+export type Plan={id:string;title:string;date:string;time:string;category:string;location:string;city:string;budget:number;description:string;creator:string;status:string;created:string;mine?:boolean};
+export type Data={plans:Plan[];rsvps:{plan:string;member:string;answer:string}[];comments:{id:string;plan:string;member:string;body:string;created:string}[];availability:{date:string;member:string;answer:string}[];photos:{id:string;plan:string;member:string;created:string;mine?:boolean}[]};
+export const sources=[{name:'Agenda de Murcia',url:'https://eventos.murcia.es/welcome.html'},{name:'Turismo Región de Murcia',url:'https://www.turismoregiondemurcia.es/es/agenda/'},{name:'Ayuntamiento de Orihuela',url:'https://www.orihuela.es/eventos-agenda/'},{name:'Turismo de Orihuela',url:'https://www.orihuelaturistica.es/'}];

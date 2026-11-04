@@ -1,0 +1,6 @@
+import { sqliteTable, text, integer, primaryKey } from 'drizzle-orm/sqlite-core';
+export const plans = sqliteTable('plans', {id:text('id').primaryKey(), title:text('title').notNull(), date:text('date').notNull(), time:text('time').notNull(), category:text('category').notNull(), location:text('location').notNull(), city:text('city').notNull(), budget:integer('budget').notNull(), description:text('description').notNull(), creator:text('creator').notNull(), owner:text('owner').notNull(), status:text('status').notNull(), created:text('created').notNull()});
+export const rsvps = sqliteTable('rsvps',{plan:text('plan').notNull(),member:text('member').notNull(),answer:text('answer').notNull() },t=>[primaryKey({columns:[t.plan,t.member]})]);
+export const comments=sqliteTable('comments',{id:text('id').primaryKey(),plan:text('plan').notNull(),member:text('member').notNull(),body:text('body').notNull(),created:text('created').notNull()});
+export const availability=sqliteTable('availability',{date:text('date').notNull(),member:text('member').notNull(),answer:text('answer').notNull()},t=>[primaryKey({columns:[t.date,t.member]})]);
+export const photos=sqliteTable('photos',{id:text('id').primaryKey(),plan:text('plan').notNull(),member:text('member').notNull(),owner:text('owner').notNull(),type:text('type').notNull(),created:text('created').notNull()});

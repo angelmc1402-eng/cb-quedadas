@@ -1,0 +1,4 @@
+project_id = "gboasldsdeqbzcnmolpp"
+[functions.cb-api]
+verify_jwt = false
+entrypoint = "./functions/cb-api/index.ts"
