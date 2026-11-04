@@ -44,3 +44,5 @@ yarn-error.log*
 # OS metadata
 .DS_Store
 !.env.example
+
+/dist-pages/

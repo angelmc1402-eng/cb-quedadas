@@ -4,7 +4,9 @@ Aplicación para organizar las quedadas de quince amigos en Murcia y Orihuela.
 
 **Repositorio público:** https://github.com/angelmc1402-eng/cb-quedadas
 
-**URL estable:** https://cb-quedadas-club.capitanmoreno.chatgpt.site
+**App desplegada (dirección principal):** https://angelmc1402-eng.github.io/cb-quedadas/
+
+**Servidor de datos y dirección anterior:** https://cb-quedadas-club.capitanmoreno.chatgpt.site
 
 ## Qué hace
 
@@ -21,7 +23,8 @@ Aplicación para organizar las quedadas de quince amigos en Murcia y Orihuela.
 
 | Parte | Servicio | Dónde está el código |
 | --- | --- | --- |
-| Interfaz y URL pública | Sites, Vinext/Cloudflare Workers | `app/`, `public/`, `.openai/hosting.json` |
+| Interfaz y URL pública | GitHub Pages (React/Vite) | `app/`, `pages/`, `vite.pages.config.ts` |
+| Servidor de API | Sites, Vinext/Cloudflare Workers | `app/api/`, `.openai/hosting.json` |
 | Datos compartidos | Proyecto Supabase C&B Quedadas, `gboasldsdeqbzcnmolpp` | `supabase/migrations/` |
 | API de datos y permisos | Edge Function `cb-api` | `supabase/functions/cb-api/` |
 | Fotos | Bucket privado Supabase `cb-photos`, servido por la app | Edge Function y rutas `app/api/photos/` |
@@ -63,9 +66,15 @@ Las migraciones de `supabase/migrations/` reproducen el esquema y los permisos. 
 
 ## Publicar cambios y GitHub
 
-La URL pública se mantiene al desplegar versiones nuevas de este mismo Site. Guardar un archivo o hacer push a GitHub por sí solo **no publica** la app. El flujo actual es verificar, compilar, sincronizar el repositorio del alojamiento, guardar una versión y desplegarla.
+La interfaz se publica automáticamente en GitHub Pages al hacer push a `main`. El workflow `.github/workflows/pages.yml` comprueba tipos, pruebas y build estático y despliega `dist-pages/`. No necesita ninguna clave privada para publicar la interfaz.
 
-GitHub debe contener todo el código fuente, lockfile, esquemas, función, pruebas y documentación. No incluir `node_modules`, builds, `.wrangler`, bases locales ni secretos. El workflow incluido ejecuta tipos, pruebas y build, pero no afirma que exista despliegue automático: ese vínculo necesita configurarse con un alojamiento y sus credenciales. El repositorio público de C&B es independiente de Diario y de los mapas.
+GitHub Pages sirve el cliente; las rutas existentes `/api` del servidor original siguen realizando todas las operaciones mediante el gateway privado de Supabase. Solo se añade acceso CORS desde `https://angelmc1402-eng.github.io`; no se añade una nueva API pública en Supabase ni se cambian las políticas de sus tablas. Los cambios del backend deben publicarse también como una versión nueva del Site. Los cambios de las funciones de Supabase requieren su despliegue específico.
+
+WhatsApp, correo, resúmenes e ICS generan enlaces canónicos a `https://angelmc1402-eng.github.io/cb-quedadas/?plan=...`, conservando la ruta del repositorio. El cierre de un plan conserva esa ruta y los recursos usan rutas compatibles con Pages.
+
+Para conservar el permiso de editar planes creados en la dirección anterior, abrirla y pulsar «Abrir allí con mi perfil». El botón transfiere nombre y clave de dispositivo mediante el fragmento de la URL, que se consume y borra inmediatamente en Pages. El fragmento no se envía al servidor ni aparece en los enlaces compartidos. Si ya existe otro perfil en Pages, se confirma antes de sustituirlo. No reenviar el enlace temporal de transferencia; compartir siempre los enlaces de los planes.
+
+Desarrollo estático: `pnpm run build:pages`. No incluir `dist-pages`, bases locales ni secretos en GitHub.
 
 ## Privacidad y límites actuales
 
