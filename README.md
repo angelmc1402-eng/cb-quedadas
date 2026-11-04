@@ -23,7 +23,7 @@ Aplicación para organizar las quedadas de quince amigos en Murcia y Orihuela.
 
 | Parte | Servicio | Dónde está el código |
 | --- | --- | --- |
-| Interfaz y URL pública | GitHub Pages (React/Vite) | `app/`, `pages/`, `vite.pages.config.ts` |
+| Interfaz y URL pública | GitHub Pages (React/Vite) | `app/`, `web/`, `vite.pages.config.ts` |
 | Servidor de API | Sites, Vinext/Cloudflare Workers | `app/api/`, `.openai/hosting.json` |
 | Datos compartidos | Proyecto Supabase C&B Quedadas, `gboasldsdeqbzcnmolpp` | `supabase/migrations/` |
 | API de datos y permisos | Edge Function `cb-api` | `supabase/functions/cb-api/` |
