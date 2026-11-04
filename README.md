@@ -2,14 +2,14 @@
 
 Aplicación para organizar las quedadas de quince amigos en Murcia y Orihuela.
 
-**Repositorio privado:** https://github.com/angelmc1402-eng/cb-quedadas
+**Repositorio público:** https://github.com/angelmc1402-eng/cb-quedadas
 
 **URL estable:** https://cb-quedadas-club.capitanmoreno.chatgpt.site
 
 ## Qué hace
 
 - Calendario mensual, semanal y lista, con propuestas, confirmaciones y cancelaciones.
-- Doble clic o doble toque en un día: abre su plan, permite elegir si hay varios o inicia uno nuevo si está vacío. Intro ofrece la misma acción con teclado.
+- Doble clic o doble toque en un día: abre su plan, permite elegir si hay varios o inicia uno nuevo si está vacío. Intro ofrece la misma acción con teclado. El + pequeño de cada casilla crea directamente un plan con esa fecha.
 - Categorías, fecha, hora peninsular, ubicación y Maps, presupuesto y notas.
 - Respuestas individuales, comentarios y disponibilidad de cada persona.
 - Histórico automático y álbumes; fotos JPG/PNG/WebP optimizadas antes de subir, máximo 5 MB almacenados y retirada de fotos propias.
@@ -65,7 +65,7 @@ Las migraciones de `supabase/migrations/` reproducen el esquema y los permisos. 
 
 La URL pública se mantiene al desplegar versiones nuevas de este mismo Site. Guardar un archivo o hacer push a GitHub por sí solo **no publica** la app. El flujo actual es verificar, compilar, sincronizar el repositorio del alojamiento, guardar una versión y desplegarla.
 
-GitHub debe contener todo el código fuente, lockfile, esquemas, función, pruebas y documentación. No incluir `node_modules`, builds, `.wrangler`, bases locales ni secretos. El workflow incluido ejecuta tipos, pruebas y build, pero no afirma que exista despliegue automático: ese vínculo necesita configurarse con un alojamiento y sus credenciales. El repositorio privado de C&B es independiente de Diario y de los mapas.
+GitHub debe contener todo el código fuente, lockfile, esquemas, función, pruebas y documentación. No incluir `node_modules`, builds, `.wrangler`, bases locales ni secretos. El workflow incluido ejecuta tipos, pruebas y build, pero no afirma que exista despliegue automático: ese vínculo necesita configurarse con un alojamiento y sus credenciales. El repositorio público de C&B es independiente de Diario y de los mapas.
 
 ## Privacidad y límites actuales
 
